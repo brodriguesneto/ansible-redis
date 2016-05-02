@@ -3,7 +3,6 @@ galaxy_info:
   description: An Ansible role that installs and configures Redis
   license: Apache License 2.0
   min_ansible_version: 2.0
-  github_branch: release
   platforms:
   - name: Ubuntu
     versions:
