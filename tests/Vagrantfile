@@ -1,0 +1,17 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+VAGRANT_API_VERSION = 2
+
+Vagrant.configure(VAGRANT_API_VERSION) do |config|
+  config.ssh.insert_key = false
+  config.vm.box = 'brodriguesneto/ubuntu-16.04-server'
+  config.vm.provider 'virtualbox' do |vb|
+    vb.cpus = 2
+    vb.memory = 2048
+  end
+  config.vm.provision 'shell', inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get -y install python
+  SHELL
+end
