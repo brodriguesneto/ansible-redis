@@ -24,7 +24,7 @@ Example Playbook
 ```sh
 - hosts: servers
   roles:
-  - { role: redis }
+  - { role: brodriguesneto.redis }
 ```
 
 License
