@@ -1,0 +1,35 @@
+---
+# Adapted from Jeff Geerling's implementation
+# http://www.jeffgeerling.com/blog/testing-ansible-roles-travis-ci-github
+
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - sudo apt-get update
+  - 'sudo docker pull ubuntu:16.04'
+  - 'sudo docker build --rm=true --file=tests/Dockerfile --tag=ubuntu-16.04:ansible tests'
+
+script:
+  - container_id=$(mktemp)
+  - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /bin/systemd > "${container_id}"'
+
+  # Ansible syntax check.
+  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml --syntax-check'
+
+  # Test role.
+  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml'
+
+  # Test role idempotence.
+  - >
+    sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml
+    | grep -q 'changed=0.*failed=0'
+    && (echo 'Idempotence test: pass' && exit 0)
+    || (echo 'Idempotence test: fail' && exit 1)
+  # Clean up
+  - 'sudo docker stop "$(cat ${container_id})"'
+
+#notifications:
+#  webhooks: https://galaxy.ansible.com/api/v1/notifications/
