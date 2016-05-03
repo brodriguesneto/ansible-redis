@@ -9,27 +9,22 @@ services:
 
 before_install:
   - sudo apt-get update
-  - 'sudo docker pull ubuntu:16.04'
-  - 'sudo docker build --rm=true --file=tests/Dockerfile --tag=ubuntu-16.04:ansible tests'
+  - sudo apt-get -y install vagrant
 
 script:
-  - container_id=$(mktemp)
-  - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /lib/systemd/systemd > "${container_id}"'
+  - cd tests
 
-  # Ansible syntax check.
-  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml --syntax-check -vvv'
+  # Create new one(s)
+  - vagrant up
 
-  # Test role.
-  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml -vvv'
+  # Check the role syntax correction
+  - ansible-playbook --syntax-check -vv playbook.yml
 
-  # Test role idempotence.
-  - >
-    sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml
-    | grep -q 'changed=0.*failed=0'
-    && (echo 'Idempotence test: pass' && exit 0)
-    || (echo 'Idempotence test: fail' && exit 1)
-  # Clean up
-  - 'sudo docker stop "$(cat ${container_id})"'
+  # Applied the role
+  - ansible-playbook -vv playbook.yml
+
+  # Verify the idempotence of the role
+  - ansible-playbook -vv playbook.yml
 
 notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
