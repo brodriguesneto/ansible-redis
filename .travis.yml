@@ -14,7 +14,11 @@ before_install:
 
 script:
   - container_id=$(mktemp)
+<<<<<<< HEAD
   - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /lib/systemd/systemd > "${container_id}"'
+=======
+  - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /sbin/init > "${container_id}"'
+>>>>>>> 1ccced1562817fbb53b95bee48e5af2275591653
 
   # Ansible syntax check.
   - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml --syntax-check'
