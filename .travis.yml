@@ -14,7 +14,7 @@ before_install:
 
 script:
   - container_id=$(mktemp)
-  - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /bin/systemd > "${container_id}"'
+  - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/ansible-redis:ro ubuntu-16.04:ansible /sbin/init > "${container_id}"'
 
   # Ansible syntax check.
   - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/ansible-redis/tests/test.yml --syntax-check'
@@ -31,5 +31,5 @@ script:
   # Clean up
   - 'sudo docker stop "$(cat ${container_id})"'
 
-#notifications:
-#  webhooks: https://galaxy.ansible.com/api/v1/notifications/
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
